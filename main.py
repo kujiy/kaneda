@@ -26,7 +26,10 @@ def rec_find(key, val, obj):
                 yield v
 
 def start():
-    # Web 情報取得
+    ## 1. kaneda topからlink href を引っこ抜く
+    ## 2. link hrefからjsonをfetch. その中に pdf url がある
+
+    # 1.Web 情報取得
     top_content = requests.get('https://www.kanedasc.com/')
     # BeautifulSoup オブジェクトを作成
     soup = BeautifulSoup(top_content.text, "html.parser", parse_only=SoupStrainer('link'))
@@ -34,14 +37,14 @@ def start():
     # print(soup.prettify())
 
     features_masterPage =  soup.find_all(id="features_masterPage")
-    # print(features_masterPage)
+
+    # 2. pdf url jsonを取得
     json_url = features_masterPage[0]["href"]
-    # print(json_url)
     json_content = requests.get(json_url)
     json_file = json.loads(json_content.text)
-    # print(json_file)
     pdf_obj = rec_find("label", '空席状況', json_file['props']['render']['compProps'])
 
+    # get generator(yield) object
     for text in pdf_obj:
         pdf_url = text["link"]["href"]
 
@@ -69,8 +72,8 @@ def update_handler(text):
     emoji = fetch_emoji()
     sendtext = f"\n{emoji} 金田さん更新！ {emoji}\n{text}\n{emoji}{emoji}{emoji}{emoji}"
 
-    line(sendtext)
     print(sendtext)
+    line(sendtext)
 
 
 def line(str):
