@@ -44,18 +44,21 @@ def start():
     json_file = json.loads(json_content.text)
     pdf_obj = rec_find("label", '空席状況', json_file['props']['render']['compProps'])
 
+    pdf_url = None
     # get generator(yield) object
     for text in pdf_obj:
         pdf_url = text["link"]["href"]
 
-    print(pdf_url)
+    if pdf_url is no None:
+        if pdf_url == open(FILE).read():
+            print('no change')
+        else:
+            print('updated!')
+            update_handler(pdf_url)
+        sys.exit()
 
-    if pdf_url == open(FILE).read():
-        print('no change')
-    else:
-        print('updated!')
-        update_handler(pdf_url)
-
+    # 2021/02~~~~
+    
 
 random.shuffle(emoji_list)
 picked = emoji_list[0]
