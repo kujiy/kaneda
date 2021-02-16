@@ -1,3 +1,6 @@
+import re
+import sys
+
 import requests, json
 import random, os
 from emoji_list import emoji_list
@@ -48,17 +51,28 @@ def start():
     # get generator(yield) object
     for text in pdf_obj:
         pdf_url = text["link"]["href"]
+        print("<---------------------------------- pdf is found.")
 
-    if pdf_url is no None:
-        if pdf_url == open(FILE).read():
-            print('no change')
-        else:
-            print('updated!')
-            update_handler(pdf_url)
+    if pdf_url is not None:
+        update_handler(pdf_url)
         sys.exit()
 
     # 2021/02~~~~
-    
+    for link in soup.find_all('a'):
+        current_link = link.get('href')
+        if current_link.endswith('pdf'):
+            print('Tengo un pdf: ' + current_link)
+            print(link.text)
+            if re.findall("空", link.text):
+                pdf_url = current_link
+                print("<---------------------------------- pdf is found.")
+
+    if pdf_url is not None:
+        update_handler(pdf_url)
+        sys.exit()
+
+
+    print("pdf was not found.")
 
 random.shuffle(emoji_list)
 picked = emoji_list[0]
@@ -70,6 +84,12 @@ def fetch_emoji():
     return out
 
 def update_handler(text):
+    if text == open(FILE).read():
+        print('no change')
+        return
+    else:
+        print('updated!')
+
     with open(FILE, 'w') as filetowrite:
         filetowrite.write(text)
     emoji = fetch_emoji()
