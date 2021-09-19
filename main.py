@@ -6,12 +6,15 @@ import random, os
 from emoji_list import emoji_list
 
 from bs4 import BeautifulSoup, SoupStrainer
+
+from env import env
+
 _NUL = object()  # unique value guaranteed to never be in JSON data
 
 FILE = "last-pdf.txt"
 
-def rec_find(key, val, obj):
 
+def rec_find(key, val, obj):
     """ Recursively find all the values of key in all the dictionaries in obj
         with a "type" key equal to kind.
     """
@@ -28,18 +31,19 @@ def rec_find(key, val, obj):
             for v in rec_find(key, val, item):  # recursive
                 yield v
 
+
 def start():
     ## 1. kaneda topからlink href を引っこ抜く
     ## 2. link hrefからjsonをfetch. その中に pdf url がある
 
     # 1.Web 情報取得
-    top_content = requests.get('https://www.kanedasc.com/')
+    top_content = requests.get('https://www.kanedasc.com/%E5%85%A5%E4%BC%9A%E3%81%AE%E6%B5%81%E3%82%8C')
     # BeautifulSoup オブジェクトを作成
     soup = BeautifulSoup(top_content.text, "html.parser", parse_only=SoupStrainer('link'))
 
     # print(soup.prettify())
 
-    features_masterPage =  soup.find_all(id="features_masterPage")
+    features_masterPage = soup.find_all('a', attrs={'data-testid' : "linkElement"})
 
     # 2. pdf url jsonを取得
     json_url = features_masterPage[0]["href"]
@@ -71,17 +75,19 @@ def start():
         update_handler(pdf_url)
         sys.exit()
 
-
     print("pdf was not found.")
+
 
 random.shuffle(emoji_list)
 picked = emoji_list[0]
+
 
 def fetch_emoji():
     out = ""
     for i in range(3):
         out += picked
     return out
+
 
 def update_handler(text):
     if text == open(FILE).read():
@@ -101,9 +107,9 @@ def update_handler(text):
 
 def line(str):
     from linenotipy import Line
-    TOKEN = os.getenv("TOKEN")
-    line = Line(token=TOKEN)
+    line = Line(token=env.LINE_TOKEN)
     line.post(message=str)
 
+
 if __name__ == "__main__":
-   start()
+    start()

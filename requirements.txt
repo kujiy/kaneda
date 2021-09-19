@@ -1,3 +1,5 @@
 bs4==0.0.1
 linenotipy==1.0.2
 requests==2.25.1
+pydantic
+python-dotenv
